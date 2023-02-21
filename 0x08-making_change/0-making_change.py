@@ -1,29 +1,33 @@
 #!/usr/bin/python3
-'''Given a pile of coins of different values,
-    determine the fewest number of coins needed to meet
-    a given amount total.
-'''
-import sys
+"""Change comes from within"""
 
 
 def makeChange(coins, total):
-    '''
-    Return: fewest number of coins needed to meet total
-    If total is 0 or less, return 0
-    If total cannot be met by any number of coins you have, return -1
-    '''
+    """Create a table to store the minimum number of coins
+    for each sub-total"""
     if total <= 0:
         return 0
-    table = [sys.maxsize for i in range(total + 1)]
-    table[0] = 0
-    m = len(coins)
-    for i in range(1, total + 1):
-        for j in range(m):
-            if coins[j] <= i:
-                subres = table[i - coins[j]]
-                if subres != sys.maxsize and subres + 1 < table[i]:
-                    table[i] = subres + 1
+    """    The table is initialized with a large value (total + 1)
+    for sub-totals
+    that cannot be achieved
+    """
+    min_coins = [total + 1] * (total + 1)
+    min_coins[0] = 0
 
-    if table[total] == sys.maxsize:
+    """Iterate over all sub-totals from 1 to the given total"""
+    for sub_total in range(1, total + 1):
+        """Try each coin value and see if it can be used to make
+        the sub-total"""
+        for coin in coins:
+            if coin <= sub_total:
+                """If the coin can be used, update the minimum
+                number of coins needed"""
+                min_coins[sub_total] = min(min_coins[sub_total],
+                                           1 + min_coins[sub_total - coin])
+
+    """If the final entry in the table has not been updated,
+    it means the total cannot be achieved"""
+    if min_coins[total] > total:
         return -1
-    return table[total]
+    else:
+        return min_coins[total]
